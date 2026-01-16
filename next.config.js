@@ -14,7 +14,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://t8ko4kk444go4sgsw4ccc0ss.102.219.189.97.sslip.io/api/:path*',
+        destination: 'http://api.abilliontestimoniesandmore.org/api/:path*',
       },
     ]
   },
