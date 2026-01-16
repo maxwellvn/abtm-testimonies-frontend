@@ -518,13 +518,10 @@ export default function SubmitPage() {
                               Loading groups...
                             </span>
                           ) : (
-                            <SelectValue placeholder={groupsError ? "Error loading groups" : (groups.length === 0 ? "No existing groups - add new" : "Select group")} />
+                            <SelectValue placeholder={groupsError ? "Error loading groups" : "Select group"} />
                           )}
                         </SelectTrigger>
                         <SelectContent>
-                          {groups.length === 0 && !isLoadingGroups && (
-                            <div className="px-2 py-1.5 text-sm text-gray-500">No existing groups in this zone</div>
-                          )}
                           {groups.map((g) => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
                           <SelectItem value="new">+ Add new group</SelectItem>
                         </SelectContent>
