@@ -101,8 +101,18 @@ export async function submitTestimony(
     clearTimeout(timeoutId)
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Submission failed' }))
-      throw new Error(error.error || `Submission failed (${response.status})`)
+      const errorData = await response.json().catch(() => ({ error: 'Submission failed' }))
+
+      // Format detailed validation errors if available
+      if (errorData.details && Array.isArray(errorData.details)) {
+        const messages = errorData.details.map((d: { path?: string[]; message?: string }) => {
+          const field = d.path?.join('.') || 'Field'
+          return `${field}: ${d.message}`
+        }).join('\n')
+        throw new Error(messages || errorData.error || 'Validation failed')
+      }
+
+      throw new Error(errorData.error || `Submission failed (${response.status})`)
     }
 
     return response.json()

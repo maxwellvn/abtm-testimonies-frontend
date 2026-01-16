@@ -236,10 +236,16 @@ export default function SubmitPage() {
 
       router.push('/submit/success')
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Please try again'
+      // Show each validation error on a new line
+      const formattedMessage = errorMessage.split('\n').map(line => `• ${line}`).join('\n')
       toast({
         title: 'Submission failed',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive'
+        description: (
+          <pre className="whitespace-pre-wrap text-sm font-sans">{formattedMessage}</pre>
+        ),
+        variant: 'destructive',
+        duration: 10000, // Show for 10 seconds so user can read all errors
       })
     } finally {
       setIsSubmitting(false)
