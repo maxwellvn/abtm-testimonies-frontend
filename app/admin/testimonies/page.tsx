@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { getTestimonies, getTestimony, updateTestimonyStatus, deleteTestimony, getTestimonyCategories, getCountries, getZones } from '@/lib/api'
-import type { Testimony, PaginatedResponse, TestimonyCategory, Country, Region } from '@/types'
+import type { Testimony, PaginatedResponse, TestimonyCategory, Country, Region, Zone } from '@/types'
 import {
   Search,
   ChevronLeft,
@@ -34,7 +34,12 @@ export default function TestimoniesPage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [testimonyCategories, setTestimonyCategories] = useState<TestimonyCategory[]>([])
   const [countries, setCountries] = useState<Country[]>([])
-  const [zones, setZones] = useState<Region[]>([])
+  const [regions, setRegions] = useState<Region[]>([])
+
+  // Extract all zones from regions for the filter dropdown
+  const allZones = useMemo(() => {
+    return regions.flatMap(region => region.zones)
+  }, [regions])
 
   // Filters
   const [page, setPage] = useState(1)
@@ -54,7 +59,7 @@ export default function TestimoniesPage() {
     Promise.all([
       getTestimonyCategories().then(setTestimonyCategories),
       getCountries().then(setCountries),
-      getZones().then(setZones),
+      getZones().then(setRegions),
     ]).catch(console.error)
   }, [])
 
@@ -274,7 +279,7 @@ export default function TestimoniesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Zones</SelectItem>
-                  {zones.map((zone) => (
+                  {allZones.map((zone) => (
                     <SelectItem key={zone.id} value={zone.id}>{zone.name}</SelectItem>
                   ))}
                 </SelectContent>
