@@ -20,21 +20,35 @@ async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include',
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }))
-    throw new Error(error.error || 'Request failed')
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      credentials: 'include',
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Request failed' }))
+      throw new Error(error.error || 'Request failed')
+    }
+
+    return response.json()
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your connection and try again.')
+    }
+    throw err
   }
-
-  return response.json()
 }
 
 // Public endpoints
