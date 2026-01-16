@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +42,16 @@ export default function TestimoniesPage() {
   const [searchInput, setSearchInput] = useState('')
 
   const { toast } = useToast()
+
+  // Build full media URL (backend returns relative path like /api/media/...)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
+  const getMediaUrl = useCallback((url: string | null | undefined) => {
+    if (!url) return null
+    // If already a full URL, return as-is
+    if (url.startsWith('http://') || url.startsWith('https://')) return url
+    // Prepend API URL for relative paths
+    return `${API_URL}${url}`
+  }, [API_URL])
 
   const loadTestimonies = useCallback(async () => {
     setIsLoading(true)
@@ -379,15 +389,17 @@ export default function TestimoniesPage() {
                     <div className="mt-2">
                       {selectedTestimony.contentType === 'VIDEO' ? (
                         <video
-                          src={selectedTestimony.mediaUrl}
+                          src={getMediaUrl(selectedTestimony.mediaUrl) || ''}
                           controls
                           className="w-full rounded-lg"
+                          crossOrigin="use-credentials"
                         />
                       ) : (
                         <audio
-                          src={selectedTestimony.mediaUrl}
+                          src={getMediaUrl(selectedTestimony.mediaUrl) || ''}
                           controls
                           className="w-full"
+                          crossOrigin="use-credentials"
                         />
                       )}
                     </div>
