@@ -11,7 +11,7 @@ import type {
   Group,
 } from '@/types'
 
-const API_URL = ''
+const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
 async function fetchApi<T>(
   endpoint: string,
