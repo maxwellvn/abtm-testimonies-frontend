@@ -146,3 +146,28 @@ export interface LoginResponse {
   admin: Admin
   token: string
 }
+
+export interface StorageSettings {
+  totalStorageLimit: number
+  maxVideoFileSize: number
+  maxAudioFileSize: number
+}
+
+export interface StorageStats {
+  totalUsed: number
+  totalLimit: number
+  usagePercent: number
+  videos: {
+    count: number
+    size: number
+  }
+  audios: {
+    count: number
+    size: number
+  }
+}
+
+export interface StorageSettingsResponse {
+  settings: StorageSettings
+  stats: StorageStats
+}

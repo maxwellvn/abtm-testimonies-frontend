@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/admin/testimonies', label: 'Testimonies', icon: MessageSquare },
   { href: '/admin/networks', label: 'Networks', icon: Network },
   { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
+  { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {

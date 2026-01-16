@@ -9,6 +9,8 @@ import type {
   LoginResponse,
   TestimonyInput,
   Group,
+  StorageSettingsResponse,
+  StorageSettings,
 } from '@/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
@@ -220,4 +222,18 @@ export async function updateExternalCategory(
 
 export async function deleteExternalCategory(id: string): Promise<void> {
   await fetchApi(`/api/admin/external/${id}`, { method: 'DELETE' })
+}
+
+// Admin Storage Settings endpoints
+export async function getStorageSettings(): Promise<StorageSettingsResponse> {
+  return fetchApi<StorageSettingsResponse>('/api/admin/settings/storage')
+}
+
+export async function updateStorageSettings(
+  data: Partial<StorageSettings>
+): Promise<StorageSettingsResponse> {
+  return fetchApi<StorageSettingsResponse>('/api/admin/settings/storage', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
 }
