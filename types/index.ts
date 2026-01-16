@@ -73,7 +73,7 @@ export interface Testimony {
   country: { id: string; name: string; code: string }
   userZoneId: string | null
   userGroupId: string | null
-  church: string
+  church: string | null
   kingschatUsername: string | null
   contentType: ContentType
   textContent: string | null
@@ -101,7 +101,7 @@ export interface TestimonyInput {
   countryId: string
   userZoneId?: string
   userGroupId?: string
-  church: string
+  church?: string
   kingschatUsername?: string
   contentType: ContentType
   textContent?: string
