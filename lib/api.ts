@@ -194,6 +194,23 @@ export async function getStats(): Promise<StatsResponse> {
   return fetchApi<StatsResponse>('/api/admin/stats')
 }
 
+// Get filter options based on existing testimonies
+export interface FilterOption {
+  id: string
+  name: string
+  count: number
+}
+
+export interface FilterOptions {
+  countries: FilterOption[]
+  zones: FilterOption[]
+  testimonyCategories: FilterOption[]
+}
+
+export async function getFilterOptions(): Promise<FilterOptions> {
+  return fetchApi<FilterOptions>('/api/admin/filters')
+}
+
 // Admin Network endpoints
 export async function getAdminNetworks(): Promise<{ networks: Network[] }> {
   return fetchApi<{ networks: Network[] }>('/api/admin/networks')

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { getTestimonies, getTestimony, updateTestimonyStatus, deleteTestimony, getTestimonyCategories, getCountries, getZones } from '@/lib/api'
-import type { Testimony, PaginatedResponse, TestimonyCategory, Country, Region, Zone } from '@/types'
+import { getTestimonies, getTestimony, updateTestimonyStatus, deleteTestimony, getFilterOptions, FilterOptions } from '@/lib/api'
+import type { Testimony, PaginatedResponse } from '@/types'
 import {
   Search,
   ChevronLeft,
@@ -32,14 +32,7 @@ export default function TestimoniesPage() {
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [testimonyCategories, setTestimonyCategories] = useState<TestimonyCategory[]>([])
-  const [countries, setCountries] = useState<Country[]>([])
-  const [regions, setRegions] = useState<Region[]>([])
-
-  // Extract all zones from regions for the filter dropdown
-  const allZones = useMemo(() => {
-    return regions.flatMap(region => region.zones)
-  }, [regions])
+  const [filterOptions, setFilterOptions] = useState<FilterOptions | null>(null)
 
   // Filters
   const [page, setPage] = useState(1)
@@ -54,13 +47,9 @@ export default function TestimoniesPage() {
 
   const { toast } = useToast()
 
-  // Load filter data on mount
+  // Load filter options on mount
   useEffect(() => {
-    Promise.all([
-      getTestimonyCategories().then(setTestimonyCategories),
-      getCountries().then(setCountries),
-      getZones().then(setRegions),
-    ]).catch(console.error)
+    getFilterOptions().then(setFilterOptions).catch(console.error)
   }, [])
 
   // Build full media URL (backend returns relative path like /api/media/...)
@@ -255,9 +244,13 @@ export default function TestimoniesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  {testimonyCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
+                  {filterOptions?.testimonyCategories.length === 0 ? (
+                    <SelectItem value="none" disabled>None available</SelectItem>
+                  ) : (
+                    filterOptions?.testimonyCategories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name} ({cat.count})</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
 
@@ -267,9 +260,13 @@ export default function TestimoniesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Countries</SelectItem>
-                  {countries.map((country) => (
-                    <SelectItem key={country.id} value={country.id}>{country.name}</SelectItem>
-                  ))}
+                  {filterOptions?.countries.length === 0 ? (
+                    <SelectItem value="none" disabled>None available</SelectItem>
+                  ) : (
+                    filterOptions?.countries.map((country) => (
+                      <SelectItem key={country.id} value={country.id}>{country.name} ({country.count})</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
 
@@ -279,9 +276,13 @@ export default function TestimoniesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Zones</SelectItem>
-                  {allZones.map((zone) => (
-                    <SelectItem key={zone.id} value={zone.id}>{zone.name}</SelectItem>
-                  ))}
+                  {filterOptions?.zones.length === 0 ? (
+                    <SelectItem value="none" disabled>None available</SelectItem>
+                  ) : (
+                    filterOptions?.zones.map((zone) => (
+                      <SelectItem key={zone.id} value={zone.id}>{zone.name} ({zone.count})</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
