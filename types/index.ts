@@ -25,6 +25,14 @@ export interface ExternalCategory {
   updatedAt: string
 }
 
+export interface TestimonyCategory {
+  id: string
+  name: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Region {
   id: string
   name: string
@@ -54,6 +62,8 @@ export interface Country {
 
 export interface Testimony {
   id: string
+  testimonyCategoryId: string
+  testimonyCategory: { id: string; name: string }
   categoryType: CategoryType
   networkId: string | null
   network: { id: string; name: string } | null
@@ -87,6 +97,7 @@ export interface Testimony {
 }
 
 export interface TestimonyInput {
+  testimonyCategoryId: string
   categoryType: CategoryType
   networkId?: string
   customNetwork?: string

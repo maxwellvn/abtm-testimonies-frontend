@@ -1,6 +1,7 @@
 import type {
   Network,
   ExternalCategory,
+  TestimonyCategory,
   Region,
   Country,
   Testimony,
@@ -44,6 +45,11 @@ export async function getNetworks(): Promise<Network[]> {
 
 export async function getExternalCategories(): Promise<ExternalCategory[]> {
   const data = await fetchApi<{ categories: ExternalCategory[] }>('/api/external')
+  return data.categories
+}
+
+export async function getTestimonyCategories(): Promise<TestimonyCategory[]> {
+  const data = await fetchApi<{ categories: TestimonyCategory[] }>('/api/testimony-categories')
   return data.categories
 }
 
@@ -236,4 +242,30 @@ export async function updateStorageSettings(
     method: 'PATCH',
     body: JSON.stringify(data),
   })
+}
+
+// Admin Testimony Category endpoints
+export async function getAdminTestimonyCategories(): Promise<{ categories: (TestimonyCategory & { _count: { testimonies: number } })[] }> {
+  return fetchApi<{ categories: (TestimonyCategory & { _count: { testimonies: number } })[] }>('/api/admin/testimony-categories')
+}
+
+export async function createTestimonyCategory(name: string): Promise<{ category: TestimonyCategory }> {
+  return fetchApi<{ category: TestimonyCategory }>('/api/admin/testimony-categories', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
+}
+
+export async function updateTestimonyCategory(
+  id: string,
+  data: { name?: string; isActive?: boolean }
+): Promise<{ category: TestimonyCategory }> {
+  return fetchApi<{ category: TestimonyCategory }>(`/api/admin/testimony-categories/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteTestimonyCategory(id: string): Promise<void> {
+  await fetchApi(`/api/admin/testimony-categories/${id}`, { method: 'DELETE' })
 }

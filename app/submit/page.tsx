@@ -12,12 +12,13 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { getNetworks, getExternalCategories, getZones, getCountries, getGroups, createGroup, submitTestimony } from '@/lib/api'
-import type { Network, ExternalCategory, Region, Country, Group, CategoryType, ContentType } from '@/types'
+import { getNetworks, getExternalCategories, getTestimonyCategories, getZones, getCountries, getGroups, createGroup, submitTestimony } from '@/lib/api'
+import type { Network, ExternalCategory, TestimonyCategory, Region, Country, Group, CategoryType, ContentType } from '@/types'
 import { FileText, Video, Mic, Upload, ArrowLeft, ArrowRight, Check, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
+  testimonyCategoryId: z.string().min(1, 'Testimony type is required'),
   categoryType: z.enum(['NETWORK', 'EXTERNAL', 'REGION']),
   networkId: z.string().optional(),
   customNetwork: z.string().optional(),
@@ -52,6 +53,7 @@ export default function SubmitPage() {
   // Data states
   const [networks, setNetworks] = useState<Network[]>([])
   const [externalCategories, setExternalCategories] = useState<ExternalCategory[]>([])
+  const [testimonyCategories, setTestimonyCategories] = useState<TestimonyCategory[]>([])
   const [zones, setZones] = useState<Region[]>([])
   const [countries, setCountries] = useState<Country[]>([])
   const [groups, setGroups] = useState<Group[]>([])
@@ -79,6 +81,7 @@ export default function SubmitPage() {
   })
 
   const { watch, setValue, register, formState: { errors } } = form
+  const testimonyCategoryId = watch('testimonyCategoryId') || ''
   const categoryType = watch('categoryType')
   const contentType = watch('contentType')
   const zoneId = watch('zoneId') || ''
@@ -92,14 +95,16 @@ export default function SubmitPage() {
     setIsInitialLoading(true)
     setInitialLoadError(null)
     try {
-      const [n, e, z, c] = await Promise.all([
+      const [n, e, tc, z, c] = await Promise.all([
         getNetworks(),
         getExternalCategories(),
+        getTestimonyCategories(),
         getZones(),
         getCountries(),
       ])
       setNetworks(n)
       setExternalCategories(e)
+      setTestimonyCategories(tc)
       setZones(z)
       setCountries(c)
     } catch (err) {
@@ -146,6 +151,7 @@ export default function SubmitPage() {
   const selectedGroup = groups.find(g => g.id === groupId)
   const selectedNetwork = networks.find(n => n.id === networkId)
   const selectedExternalCategory = externalCategories.find(c => c.id === externalCategoryId)
+  const selectedTestimonyCategory = testimonyCategories.find(c => c.id === testimonyCategoryId)
   const allZones = zones.flatMap(r => r.zones)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +175,7 @@ export default function SubmitPage() {
     const hasChurch = !!watch('church')
 
     switch (step) {
-      case 0: return !!categoryType
+      case 0: return !!categoryType && !!testimonyCategoryId
       case 1:
         if (categoryType === 'NETWORK') return !!networkId || !!watch('customNetwork')
         if (categoryType === 'EXTERNAL') return !!externalCategoryId || !!watch('customExternal')
@@ -209,6 +215,7 @@ export default function SubmitPage() {
       }
 
       await submitTestimony({
+        testimonyCategoryId: data.testimonyCategoryId,
         categoryType: data.categoryType as CategoryType,
         networkId: data.categoryType === 'NETWORK' && networkId !== 'other' ? data.networkId : undefined,
         customNetwork: data.categoryType === 'NETWORK' && networkId === 'other' ? data.customNetwork : undefined,
@@ -338,28 +345,44 @@ export default function SubmitPage() {
 
           {/* Step 0: Category */}
           {step === 0 && (
-            <div className="space-y-3">
-              <h2 className="font-medium text-base md:text-lg mb-4">Select Category</h2>
-              {[
-                { value: 'NETWORK', label: 'Network', desc: 'REON, TNI, Youths Aglow, etc.' },
-                { value: 'EXTERNAL', label: 'External Category', desc: 'Other categories' },
-                { value: 'REGION', label: 'Zone / Group / Church', desc: '' },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setValue('categoryType', opt.value as CategoryType)}
-                  className={cn(
-                    "w-full p-3 md:p-4 rounded-lg border text-left transition-all active:scale-[0.99]",
-                    categoryType === opt.value
-                      ? "border-[#1a1a2e] bg-gray-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
-                  )}
-                >
-                  <div className="font-medium text-sm md:text-base">{opt.label}</div>
-                  {opt.desc && <div className="text-xs md:text-sm text-gray-500 mt-0.5">{opt.desc}</div>}
-                </button>
-              ))}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <h2 className="font-medium text-base md:text-lg">Testimony Type *</h2>
+                <Select value={testimonyCategoryId} onValueChange={(v) => setValue('testimonyCategoryId', v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={testimonyCategories.length === 0 ? "No types available" : "What is your testimony about?"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {testimonyCategories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <h2 className="font-medium text-base md:text-lg">Select Category *</h2>
+                {[
+                  { value: 'NETWORK', label: 'Network', desc: 'REON, TNI, Youths Aglow, etc.' },
+                  { value: 'EXTERNAL', label: 'External Category', desc: 'Other categories' },
+                  { value: 'REGION', label: 'Zone / Group / Church', desc: '' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setValue('categoryType', opt.value as CategoryType)}
+                    className={cn(
+                      "w-full p-3 md:p-4 rounded-lg border text-left transition-all active:scale-[0.99]",
+                      categoryType === opt.value
+                        ? "border-[#1a1a2e] bg-gray-50 shadow-sm"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
+                    )}
+                  >
+                    <div className="font-medium text-sm md:text-base">{opt.label}</div>
+                    {opt.desc && <div className="text-xs md:text-sm text-gray-500 mt-0.5">{opt.desc}</div>}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -614,6 +637,10 @@ export default function SubmitPage() {
             <div className="space-y-4">
               <h2 className="font-medium text-base md:text-lg mb-4">Review & Submit</h2>
               <div className="bg-gray-50 rounded-lg p-3 md:p-4 space-y-2 md:space-y-3 text-sm">
+                <div className="flex justify-between gap-2">
+                  <span className="text-gray-500 flex-shrink-0">Testimony Type</span>
+                  <span className="text-right truncate">{selectedTestimonyCategory?.name}</span>
+                </div>
                 <div className="flex justify-between gap-2">
                   <span className="text-gray-500 flex-shrink-0">Category</span>
                   <span className="text-right">{categoryType === 'NETWORK' ? 'Network' : categoryType === 'EXTERNAL' ? 'External' : 'Zone/Group/Church'}</span>
