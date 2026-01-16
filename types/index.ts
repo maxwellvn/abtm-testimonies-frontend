@@ -145,11 +145,24 @@ export interface Stats {
     external: number
     region: number
   }
+  topCountries: { country: string; count: number }[]
+  topZones: { zone: string; count: number }[]
+  topTestimonyTypes: { type: string; count: number }[]
+}
+
+export interface RecentTestimony {
+  id: string
+  name: string
+  categoryType: CategoryType
+  contentType: ContentType
+  status: TestimonyStatus
+  createdAt: string
+  testimonyCategory?: { name: string }
 }
 
 export interface StatsResponse {
   stats: Stats
-  recentTestimonies: Pick<Testimony, 'id' | 'name' | 'categoryType' | 'contentType' | 'status' | 'createdAt'>[]
+  recentTestimonies: RecentTestimony[]
 }
 
 export interface LoginResponse {

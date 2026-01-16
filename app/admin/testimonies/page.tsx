@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { getTestimonies, getTestimony, updateTestimonyStatus, deleteTestimony } from '@/lib/api'
-import type { Testimony, PaginatedResponse } from '@/types'
+import { getTestimonies, getTestimony, updateTestimonyStatus, deleteTestimony, getTestimonyCategories, getCountries, getZones } from '@/lib/api'
+import type { Testimony, PaginatedResponse, TestimonyCategory, Country, Region } from '@/types'
 import {
   Search,
   ChevronLeft,
@@ -32,16 +32,31 @@ export default function TestimoniesPage() {
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [testimonyCategories, setTestimonyCategories] = useState<TestimonyCategory[]>([])
+  const [countries, setCountries] = useState<Country[]>([])
+  const [zones, setZones] = useState<Region[]>([])
 
   // Filters
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<string>('')
   const [categoryType, setCategoryType] = useState<string>('')
   const [contentType, setContentType] = useState<string>('')
+  const [testimonyCategoryId, setTestimonyCategoryId] = useState<string>('')
+  const [countryId, setCountryId] = useState<string>('')
+  const [zoneId, setZoneId] = useState<string>('')
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
 
   const { toast } = useToast()
+
+  // Load filter data on mount
+  useEffect(() => {
+    Promise.all([
+      getTestimonyCategories().then(setTestimonyCategories),
+      getCountries().then(setCountries),
+      getZones().then(setZones),
+    ]).catch(console.error)
+  }, [])
 
   // Build full media URL (backend returns relative path like /api/media/...)
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
@@ -62,6 +77,9 @@ export default function TestimoniesPage() {
         status: status || undefined,
         categoryType: categoryType || undefined,
         contentType: contentType || undefined,
+        testimonyCategoryId: testimonyCategoryId || undefined,
+        countryId: countryId || undefined,
+        zoneId: zoneId || undefined,
         search: search || undefined,
       })
       setData(result)
@@ -74,7 +92,7 @@ export default function TestimoniesPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [page, status, categoryType, contentType, search, toast])
+  }, [page, status, categoryType, contentType, testimonyCategoryId, countryId, zoneId, search, toast])
 
   useEffect(() => {
     loadTestimonies()
@@ -216,13 +234,49 @@ export default function TestimoniesPage() {
 
               <Select value={contentType} onValueChange={(v) => { setContentType(v); setPage(1); }}>
                 <SelectTrigger className="w-[130px]">
-                  <SelectValue placeholder="Type" />
+                  <SelectValue placeholder="Format" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="all">All Formats</SelectItem>
                   <SelectItem value="TEXT">Text</SelectItem>
                   <SelectItem value="VIDEO">Video</SelectItem>
                   <SelectItem value="AUDIO">Audio</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={testimonyCategoryId} onValueChange={(v) => { setTestimonyCategoryId(v); setPage(1); }}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Testimony Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  {testimonyCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={countryId} onValueChange={(v) => { setCountryId(v); setPage(1); }}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  {countries.map((country) => (
+                    <SelectItem key={country.id} value={country.id}>{country.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={zoneId} onValueChange={(v) => { setZoneId(v); setPage(1); }}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Zone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Zones</SelectItem>
+                  {zones.map((zone) => (
+                    <SelectItem key={zone.id} value={zone.id}>{zone.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -270,7 +324,9 @@ export default function TestimoniesPage() {
                         {testimony.email} · {testimony.church}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {testimony.categoryType} · {new Date(testimony.createdAt).toLocaleDateString()}
+                        {testimony.testimonyCategory?.name && <span className="text-blue-600">{testimony.testimonyCategory.name}</span>}
+                        {testimony.testimonyCategory?.name && ' · '}
+                        {testimony.categoryType} · {testimony.country?.name} · {new Date(testimony.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -361,7 +417,15 @@ export default function TestimoniesPage() {
                     <p className="font-medium">{selectedTestimony.church}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-500">Category</span>
+                    <span className="text-sm text-gray-500">Zone</span>
+                    <p className="font-medium">{selectedTestimony.zone?.name || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Testimony Type</span>
+                    <p className="font-medium text-blue-600">{selectedTestimony.testimonyCategory?.name || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Submission Category</span>
                     <p className="font-medium">
                       {selectedTestimony.categoryType}
                       {selectedTestimony.network && ` - ${selectedTestimony.network.name}`}

@@ -143,6 +143,9 @@ export async function getTestimonies(params: {
   status?: string
   categoryType?: string
   contentType?: string
+  testimonyCategoryId?: string
+  countryId?: string
+  zoneId?: string
   search?: string
 }): Promise<PaginatedResponse<Testimony>> {
   const searchParams = new URLSearchParams()
@@ -151,6 +154,9 @@ export async function getTestimonies(params: {
   if (params.status) searchParams.set('status', params.status)
   if (params.categoryType) searchParams.set('categoryType', params.categoryType)
   if (params.contentType) searchParams.set('contentType', params.contentType)
+  if (params.testimonyCategoryId) searchParams.set('testimonyCategoryId', params.testimonyCategoryId)
+  if (params.countryId) searchParams.set('countryId', params.countryId)
+  if (params.zoneId) searchParams.set('zoneId', params.zoneId)
   if (params.search) searchParams.set('search', params.search)
 
   return fetchApi<PaginatedResponse<Testimony>>(`/api/testimonies?${searchParams}`)
@@ -268,4 +274,36 @@ export async function updateTestimonyCategory(
 
 export async function deleteTestimonyCategory(id: string): Promise<void> {
   await fetchApi(`/api/admin/testimony-categories/${id}`, { method: 'DELETE' })
+}
+
+// Admin Profile endpoints
+export interface AdminProfile {
+  id: string
+  email: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export async function getAdminProfile(): Promise<{ admin: AdminProfile }> {
+  return fetchApi<{ admin: AdminProfile }>('/api/admin/profile')
+}
+
+export async function updateAdminProfile(
+  data: { name?: string; email?: string }
+): Promise<{ admin: AdminProfile }> {
+  return fetchApi<{ admin: AdminProfile }>('/api/admin/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function changeAdminPassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> {
+  return fetchApi<{ success: boolean; message: string }>('/api/admin/profile', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  })
 }

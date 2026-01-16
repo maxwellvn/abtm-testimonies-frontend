@@ -17,6 +17,7 @@ import {
   X,
   Settings,
   Tag,
+  User,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/admin/networks', label: 'Networks', icon: Network },
   { href: '/admin/categories', label: 'Categories', icon: FolderOpen },
   { href: '/admin/testimony-categories', label: 'Testimony Types', icon: Tag },
+  { href: '/admin/profile', label: 'Profile', icon: User },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 

@@ -18,6 +18,9 @@ import {
   Network,
   FolderOpen,
   MapPin,
+  Globe,
+  Tag,
+  BarChart2,
 } from 'lucide-react'
 
 export default function DashboardPage() {
@@ -152,7 +155,7 @@ export default function DashboardPage() {
         {/* Category Type Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">By Category Type</CardTitle>
+            <CardTitle className="text-lg">By Submission Category</CardTitle>
             <CardDescription>How testimonies are categorized</CardDescription>
           </CardHeader>
           <CardContent>
@@ -167,6 +170,93 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Stats Row */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Top Countries */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Top Countries
+            </CardTitle>
+            <CardDescription>Countries with most testimonies</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.stats.topCountries.length === 0 ? (
+              <p className="text-gray-500 text-sm">No data yet</p>
+            ) : (
+              <div className="space-y-3">
+                {stats.stats.topCountries.slice(0, 5).map((item, index) => (
+                  <div key={item.country} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 w-4">{index + 1}.</span>
+                      <span className="font-medium">{item.country}</span>
+                    </div>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top Zones */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Top Zones
+            </CardTitle>
+            <CardDescription>Zones with most testimonies</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.stats.topZones.length === 0 ? (
+              <p className="text-gray-500 text-sm">No data yet</p>
+            ) : (
+              <div className="space-y-3">
+                {stats.stats.topZones.slice(0, 5).map((item, index) => (
+                  <div key={item.zone} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 w-4">{index + 1}.</span>
+                      <span className="font-medium">{item.zone}</span>
+                    </div>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top Testimony Types */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Tag className="h-5 w-5" />
+              Top Testimony Types
+            </CardTitle>
+            <CardDescription>Most popular testimony types</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.stats.topTestimonyTypes.length === 0 ? (
+              <p className="text-gray-500 text-sm">No data yet</p>
+            ) : (
+              <div className="space-y-3">
+                {stats.stats.topTestimonyTypes.slice(0, 5).map((item, index) => (
+                  <div key={item.type} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 w-4">{index + 1}.</span>
+                      <span className="font-medium">{item.type}</span>
+                    </div>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -192,6 +282,8 @@ export default function DashboardPage() {
                     <div>
                       <p className="font-medium">{testimony.name}</p>
                       <p className="text-sm text-gray-500">
+                        {testimony.testimonyCategory?.name && <span className="text-blue-600">{testimony.testimonyCategory.name}</span>}
+                        {testimony.testimonyCategory?.name && ' · '}
                         {testimony.categoryType} · {testimony.contentType}
                       </p>
                     </div>
