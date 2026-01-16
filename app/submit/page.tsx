@@ -257,10 +257,12 @@ export default function SubmitPage() {
     return (
       <div className="min-h-screen bg-white">
         <Header />
-        <div className="bg-[#1a1a2e] py-8 md:py-12 text-center">
-          <div className="container mx-auto px-4">
-            <Skeleton className="h-8 w-48 mx-auto mb-2 bg-white/20" />
-            <Skeleton className="h-4 w-32 mx-auto bg-white/10" />
+        <div className="relative overflow-hidden bg-[#0f0f1a] py-16 md:py-24 lg:py-28">
+          <div className="container mx-auto px-4 text-center">
+            <Skeleton className="h-7 w-36 mx-auto mb-6 rounded-full bg-white/10" />
+            <Skeleton className="h-10 md:h-14 w-72 md:w-96 mx-auto mb-2 bg-white/15" />
+            <Skeleton className="h-10 md:h-14 w-40 md:w-48 mx-auto mb-4 bg-white/10" />
+            <Skeleton className="h-5 w-64 mx-auto bg-white/5" />
           </div>
         </div>
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-2xl">
@@ -285,10 +287,21 @@ export default function SubmitPage() {
     return (
       <div className="min-h-screen bg-white">
         <Header />
-        <div className="bg-[#1a1a2e] py-8 md:py-12 text-center">
-          <div className="container mx-auto px-4">
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-white mb-2">Share Your Testimony</h1>
-            <p className="text-white/60 text-sm md:text-base">Your story can inspire others</p>
+        <div className="relative overflow-hidden bg-[#0f0f1a] py-16 md:py-24 lg:py-28">
+          <div className="container mx-auto px-4 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs md:text-sm text-white/70 font-medium tracking-wide uppercase">Share Your Story</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+              A Billion Testimonies
+              <span className="block mt-1 md:mt-2 bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-transparent">
+                & More
+              </span>
+            </h1>
+            <p className="text-white/50 text-base md:text-lg max-w-md mx-auto leading-relaxed">
+              Join millions sharing testimonies of God&apos;s faithfulness across the world
+            </p>
           </div>
         </div>
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-2xl">
@@ -310,10 +323,37 @@ export default function SubmitPage() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <div className="bg-[#1a1a2e] py-8 md:py-12 text-center">
-        <div className="container mx-auto px-4">
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-white mb-2">Share Your Testimony</h1>
-          <p className="text-white/60 text-sm md:text-base">Your story can inspire others</p>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-[#0f0f1a]">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f0f1a]/50 to-[#0f0f1a]" />
+
+        <div className="relative py-16 md:py-24 lg:py-28">
+          <div className="container mx-auto px-4 text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs md:text-sm text-white/70 font-medium tracking-wide uppercase">Share Your Story</span>
+            </div>
+
+            {/* Main Title */}
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+              A Billion Testimonies
+              <span className="block mt-1 md:mt-2 bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-transparent">
+                & More
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-white/50 text-base md:text-lg max-w-md mx-auto leading-relaxed">
+              Join millions sharing testimonies of God&apos;s faithfulness across the world
+            </p>
+          </div>
         </div>
       </div>
 
