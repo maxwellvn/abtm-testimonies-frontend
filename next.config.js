@@ -14,7 +14,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://api.abilliontestimoniesandmore.org/api/:path*',
+        destination: 'https://api.abilliontestimoniesandmore.org/api/:path*',
       },
     ]
   },
