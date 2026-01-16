@@ -78,18 +78,35 @@ export async function submitTestimony(
     formData.append('file', file)
   }
 
-  const response = await fetch(`/api/testimonies`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include',
-  })
+  try {
+    const controller = new AbortController()
+    // 5 minute timeout for large file uploads
+    const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000)
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Submission failed' }))
-    throw new Error(error.error || 'Submission failed')
+    const response = await fetch(`${API_URL}/api/testimonies`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Submission failed' }))
+      throw new Error(error.error || `Submission failed (${response.status})`)
+    }
+
+    return response.json()
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        throw new Error('Upload timed out. Please try a smaller file or check your connection.')
+      }
+      throw err
+    }
+    throw new Error('Submission failed')
   }
-
-  return response.json()
 }
 
 // Auth endpoints
